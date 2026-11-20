@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F3D2B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MHF">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>داشبورد زندگی</title>
+<style>
+:root{
+  --forest:#1F3D2B; --forest-2:#2E5A40;
+  --beige:#F3EBDD; --paper:#FAF6EC; --line:#E0D3BA;
+  --gold:#B8975A; --gold-soft:#D9C79F;
+  --neutral:#A59F94; --ink:#22302A; --muted:#707668;
+  --font:"Vazirmatn","Noto Sans Arabic","Noto Naskh Arabic",Tahoma,system-ui,sans-serif;
+  --latin:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--beige);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.6}
+button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding:0 16px calc(92px + env(safe-area-inset-bottom))}
+
+/* سربرگ */
+.head{display:flex;align-items:center;gap:10px;padding:22px 0 14px}
+.head-main{flex:1;text-align:center;min-width:0}
+.head-title{font-size:19px;font-weight:700;color:var(--forest);line-height:1.5}
+.head-sub{font-family:var(--latin);font-size:13px;color:var(--muted);direction:ltr}
+.iconbtn{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--forest);display:flex;align-items:center;justify-content:center;padding:0}
+.iconbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.linkbtn{margin-top:4px;background:none;border:0;color:var(--gold);font-size:13px;padding:2px 8px;text-decoration:underline;text-underline-offset:3px}
+
+/* کارت‌ها */
+.card{background:var(--paper);border:1px solid var(--gold);border-radius:16px;padding:14px;margin-bottom:14px}
+.sec-title{font-size:13px;color:var(--muted);margin:18px 4px 8px}
+.chart-card{display:flex;gap:12px;align-items:stretch;padding:12px}
+.chart-card.tap{cursor:pointer}
+.pct-box{width:94px;flex:none;border-radius:12px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 4px;
+  background-color:#EFE4CE;
+  background-image:linear-gradient(45deg,rgba(184,151,90,.16) 25%,transparent 25%,transparent 75%,rgba(184,151,90,.16) 75%),linear-gradient(45deg,rgba(184,151,90,.16) 25%,transparent 25%,transparent 75%,rgba(184,151,90,.16) 75%);
+  background-size:12px 12px;background-position:0 0,6px 6px}
+.pct-num{font-size:27px;font-weight:700;color:var(--forest-2);line-height:1.3}
+.pct-sub{font-size:11px;color:var(--muted);line-height:1.5}
+.chart-box{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.chart-cap{font-size:11px;color:var(--muted);margin-bottom:2px}
+svg.chart{width:100%;height:auto;display:block;direction:ltr}
+svg.chart .grid{stroke:var(--line);stroke-width:1}
+svg.chart .line{stroke:var(--forest-2);stroke-width:2;fill:none;stroke-linejoin:round;stroke-linecap:round}
+svg.chart .dot{fill:var(--paper);stroke:var(--forest-2);stroke-width:1.8}
+svg.chart text{fill:var(--muted);font-size:9.5px;font-family:var(--font)}
+.empty{color:var(--muted);font-size:13px;text-align:center;padding:14px 6px;line-height:1.8}
+.empty.small{padding:20px 4px}
+
+/* جدول‌ها */
+.table{padding:2px 12px}
+.trow{display:grid;grid-template-columns:1fr 54px 54px 38px;gap:4px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.trow:last-child{border-bottom:0}
+.trow.thead{cursor:default;font-size:11px;color:var(--muted);padding:10px 0 8px;text-align:center;line-height:1.4}
+.trow.thead div:first-child{text-align:right}
+.trow.w3{grid-template-columns:1fr 66px 38px}
+.trow.w2{grid-template-columns:1fr 38px}
+.tt{font-size:15px;word-break:break-word}
+.tt small{display:block;font-size:11.5px;color:var(--muted);line-height:1.5}
+.hab{color:var(--gold);font-size:13px;margin-right:5px}
+.tag{display:inline-block;font-size:10.5px;color:var(--forest-2);border:1px solid var(--gold-soft);border-radius:999px;padding:0 7px;margin-right:6px;line-height:1.6}
+.tm{font-size:12.5px;color:var(--muted);text-align:center}
+.tm.day{font-size:12px}
+.stat{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--neutral);background:transparent;color:var(--neutral);font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;justify-self:center;padding:0}
+.stat.on{background:var(--forest-2);border-color:var(--forest-2);color:#F3EBDD}
+.addbtn{width:100%;margin-top:6px;padding:11px;border:1px dashed var(--gold);border-radius:12px;background:transparent;color:var(--forest);font-size:14px}
+
+/* یادداشت */
+.notes{position:relative;margin-top:26px;padding:20px 14px 10px}
+.notes legend{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--beige);padding:0 14px;font-family:var(--latin);font-size:17px;color:var(--forest);font-style:italic}
+.notes textarea{width:100%;border:0;background:transparent;resize:none;outline:none;overflow:hidden;line-height:1.9;min-height:60px;display:block}
+.notes textarea::placeholder{color:var(--neutral)}
+
+/* گزارش */
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.rcell{border:1px solid var(--line);border-radius:12px;padding:10px 2px}
+.rcell b{display:block;font-size:20px;color:var(--forest);line-height:1.4}
+.rcell span{font-size:11px;color:var(--muted)}
+.rcell.pc b{color:var(--forest-2)}
+.cmp{display:grid;grid-template-columns:64px 1fr 40px;gap:8px;align-items:center;margin-top:7px;font-size:12.5px}
+.cmp-bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.cmp-bar i{display:block;height:100%;background:var(--forest-2);border-radius:999px}
+.cmp.best .cmp-bar i{background:var(--gold)}
+.cmp-v{text-align:left;color:var(--muted);font-size:12px}
+.note-line{font-size:13px;color:var(--muted);margin-top:10px}
+
+/* ماهانه */
+.mtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
+.seg2{display:inline-flex;border:1px solid var(--gold);border-radius:999px;overflow:hidden}
+.seg2 button{border:0;background:transparent;padding:5px 16px;font-size:13px;color:var(--forest)}
+.seg2 button.on{background:var(--forest);color:var(--beige)}
+.mpct{font-size:13px;color:var(--muted)}
+.mpct b{color:var(--forest-2);font-size:16px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--gold-soft);border-radius:999px;padding:4px 13px;background:transparent;font-size:13px;color:var(--forest)}
+.chip.on{background:var(--forest);color:var(--beige);border-color:var(--forest)}
+.chip.off{opacity:.6}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .wd{font-size:11px;color:var(--muted);text-align:center;padding-bottom:3px}
+.cell{border:1px solid var(--line);border-radius:10px;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:4px 0 3px}
+.cell.blank{border:0}
+.cell.today{border-color:var(--gold);background:#F3E9D2}
+.cell .jn{font-size:12.5px;line-height:1.4}
+.cell .mk{font-size:16px;line-height:1;height:18px}
+.cell .mk.ok{color:var(--forest-2);font-weight:700}
+.cell .mk.no{color:var(--neutral)}
+.cell .gn{font-family:var(--latin);font-size:9px;color:var(--muted);line-height:1}
+
+/* نوار پایین */
+#nav{position:fixed;left:0;right:0;bottom:0;background:var(--forest);border-top:1px solid var(--gold);z-index:20;padding-bottom:env(safe-area-inset-bottom)}
+#nav .inner{max-width:520px;margin:0 auto;display:flex}
+.nbtn{flex:1;background:none;border:0;color:#AFC0B3;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 8px;font-size:12px;position:relative}
+.nbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.nbtn.on{color:var(--gold-soft)}
+.nbtn.on::before{content:"";position:absolute;top:0;left:30%;right:30%;height:2px;background:var(--gold)}
+
+/* پنل‌های کشویی */
+.overlay{position:fixed;inset:0;background:rgba(20,30,24,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--beige);width:100%;max-width:520px;max-height:90vh;overflow:auto;border:1px solid var(--gold);border-bottom:0;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sheet h3{margin:0 0 4px;font-size:17px;color:var(--forest);text-align:center}
+.sheet .sub{text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:6px;direction:ltr;font-family:var(--latin)}
+label.f{display:block;font-size:13px;color:var(--muted);margin:13px 2px 5px}
+.fin{width:100%;padding:11px 12px;border:1px solid var(--gold-soft);border-radius:12px;background:var(--paper);outline:none}
+.fin:focus{border-color:var(--gold)}
+input[type=time].fin{direction:ltr;text-align:right;min-height:46px}
+.tin{display:flex;gap:4px;align-items:center;min-width:0}
+.tin .fin{flex:1;min-width:0;width:auto;padding:10px 6px}
+.clr{width:28px;height:28px;flex:none;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--neutral);font-size:16px;padding:0}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{flex:1 1 auto;min-width:64px;border:1px solid var(--gold-soft);border-radius:12px;background:transparent;padding:9px 6px;font-size:13.5px;color:var(--forest)}
+.seg button.on{background:var(--forest);border-color:var(--forest);color:var(--beige)}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:13.5px;color:var(--ink);line-height:1.7}
+.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--forest-2);flex:none}
+.err{color:#9A4B3A;font-size:12.5px;min-height:18px;margin-top:6px;text-align:center}
+.actions{display:flex;gap:8px;margin-top:10px}
+.btn{flex:1;padding:12px;border-radius:12px;border:1px solid var(--forest);background:transparent;color:var(--forest);font-size:15px}
+.btn.primary{background:var(--forest);color:var(--beige)}
+.btn.danger{border-color:#B9806F;color:#9A4B3A;flex:0 0 38%}
+.btn.danger.armed{background:#9A4B3A;border-color:#9A4B3A;color:#fff}
+.hrow{display:grid;grid-template-columns:1fr 60px 38px 46px;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.hrow:last-child{border-bottom:0}
+.hn{font-size:13.5px}
+.hg{font-family:var(--latin);font-size:11px;color:var(--muted);direction:ltr;text-align:right}
+.hbar{height:7px;border-radius:999px;background:var(--line);overflow:hidden}
+.hbar i{display:block;height:100%;background:var(--forest-2)}
+.hv{font-size:12px;text-align:center}
+.hc{font-size:11px;color:var(--muted);text-align:left}
+.warn{background:#F1DFD3;border:1px solid #D9B4A2;color:#7A3F2E;border-radius:12px;font-size:12.5px;padding:8px 12px;margin-top:12px;line-height:1.7}
+/* صفحه‌ی آغازین */
+#splash{position:fixed;inset:0;z-index:100;background:var(--forest);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease;cursor:pointer}
+#splash.hide{opacity:0;pointer-events:none}
+#splash .logo{font-family:var(--latin);font-weight:700;font-size:76px;letter-spacing:.12em;padding-left:.12em;color:var(--gold);direction:ltr;
+  -webkit-text-stroke:2px #fff;paint-order:stroke fill;text-shadow:0 0 0 #fff;line-height:1.1;animation:pop .7s ease-out both}
+#splash .rule{width:84px;height:1px;background:var(--gold);margin-top:18px;opacity:.8;animation:pop .9s ease-out both}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#splash,#splash .logo,#splash .rule{animation:none;transition:none}}
+</style>
+</head>
+<body>
+<div id="splash" aria-label="MHF"><div class="logo">MHF</div><div class="rule"></div></div>
+<div id="app">
+  <div id="warn"></div>
+  <main id="view"></main>
+</div>
+<nav id="nav" aria-label="بخش‌ها">
+  <div class="inner">
+    <button class="nbtn" data-act="tab" data-tab="daily">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>روزانه</button>
+    <button class="nbtn" data-act="tab" data-tab="weekly">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>هفتگی</button>
+    <button class="nbtn" data-act="tab" data-tab="monthly">
+      <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>ماهانه</button>
+  </div>
+</nav>
+<div id="sheet-root"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============ ابزارهای کوچک ============ */
+var FA='۰۱۲۳۴۵۶۷۸۹';
+function fa(n){return String(n).replace(/\d/g,function(d){return FA[+d];});}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function pad(n){return String(n).padStart(2,'0');}
+function $(id){return document.getElementById(id);}
+function pctText(p){return p==null?'—':fa(p)+'٪';}
+
+/* ============ تاریخ (میلادی برای ذخیره، شمسی برای نمایش) ============ */
+var WD=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+var JM=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+function keyOf(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function parseKey(k){var p=k.split('-').map(Number);return new Date(p[0],p[1]-1,p[2],12);}
+function addDays(k,n){var d=parseKey(k);d.setDate(d.getDate()+n);return keyOf(d);}
+function diffDays(a,b){return Math.round((parseKey(b)-parseKey(a))/864e5);}
+function todayKey(){return keyOf(new Date());}
+function nowHM(){var d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes());}
+function weekdayIdx(k){return (parseKey(k).getDay()+1)%7;}   /* شنبه = ۰ */
+function weekStartOf(k){return addDays(k,-weekdayIdx(k));}
+
+var jfmt=new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn',{year:'numeric',month:'numeric',day:'numeric'});
+var jcache={};
+function jal(k){
+  if(jcache[k])return jcache[k];
+  var o={};
+  jfmt.formatToParts(parseKey(k)).forEach(function(p){
+    if(p.type==='year'||p.type==='month'||p.type==='day')o[p.type]=parseInt(p.value,10);
+  });
+  return (jcache[k]={y:o.year,m:o.month,d:o.day});
+}
+var CUM=[0,31,62,93,124,155,186,216,246,276,306,336];
+var mscache={};
+function jMonthStart(y,m){
+  var ck=y+'-'+m;
+  if(mscache[ck])return mscache[ck];
+  var guess=keyOf(new Date(y+621,2,21+CUM[m-1],12));
+  for(var off=-4;off<=4;off++){
+    var k=addDays(guess,off),j=jal(k);
+    if(j.y===y&&j.m===m&&j.d===1)return (mscache[ck]=k);
+  }
+  return (mscache[ck]=guess);
+}
+function jMonthLen(y,m){
+  var ny=m===12?y+1:y,nm=m===12?1:m+1;
+  return diffDays(jMonthStart(y,m),jMonthStart(ny,nm));
+}
+function jLabel(k){var j=jal(k);return fa(j.d)+' '+JM[j.m-1]+' '+fa(j.y);}
+function gShort(k){return parseKey(k).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function gNoYear(k){return parseKey(k).toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function gRange(a,b){return (parseKey(a).getFullYear()===parseKey(b).getFullYear()?gNoYear(a):gShort(a))+' – '+gShort(b);}
+function gLong(k){return parseKey(k).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+
+/* ============ ذخیره‌سازی (فقط این بخش به LocalStorage دست می‌زند) ============ */
+var STORE_KEY='lifeDashboard.v1';
+var memOnly=false;
+var data=load();
+
+function fresh(){return {version:1,habits:[],daily:{},weekly:{},monthly:{}};}
+function load(){
+  var raw=null;
+  try{raw=localStorage.getItem(STORE_KEY);}catch(e){memOnly=true;return fresh();}
+  if(!raw)return fresh();
+  try{
+    var d=JSON.parse(raw);
+    if(d&&d.version===1){
+      d.habits=d.habits||[];d.daily=d.daily||{};d.weekly=d.weekly||{};d.monthly=d.monthly||{};
+      return d;
+    }
+  }catch(e){}
+  try{localStorage.setItem(STORE_KEY+'.broken',raw);}catch(e){}   /* پشتیبان نسخه‌ی خراب */
+  return fresh();
+}
+function save(){
+  try{localStorage.setItem(STORE_KEY,JSON.stringify(data));}
+  catch(e){memOnly=true;showWarn();}
+}
+function showWarn(){
+  $('warn').innerHTML=memOnly?'<div class="warn">حافظه‌ی دائمی مرورگر در دسترس نیست؛ اطلاعات با بستن صفحه پاک می‌شود.</div>':'';
+}
+
+/* ============ محاسبه‌ی عملکرد (فقط از داده‌های واقعی) ============ */
+function dayTasks(k){return (data.daily[k]&&data.daily[k].tasks)||[];}
+function dayStat(k){
+  var t=dayTasks(k),total=t.length,done=t.filter(function(x){return x.done;}).length;
+  return {total:total,done:done,undone:total-done,pct:total?Math.round(done/total*100):null};
+}
+function dayPct(k){return k>todayKey()?null:dayStat(k).pct;}
+function rangeStat(keys){
+  var tk=todayKey(),total=0,done=0;
+  keys.forEach(function(k){if(k>tk)return;var s=dayStat(k);total+=s.total;done+=s.done;});
+  return {total:total,done:done,undone:total-done,pct:total?Math.round(done/total*100):null};
+}
+
+/* عادت‌ها: هر روز (از امروز به بعد) خودکار به لیست روزانه اضافه می‌شوند */
+function applyHabits(k){
+  if(k<todayKey())return;
+  var day=data.daily[k],changed=false;
+  data.habits.forEach(function(h){
+    if(!h.active||k<h.since)return;
+    if(day&&day.applied&&day.applied.indexOf(h.id)>-1)return;
+    if(!day)day=data.daily[k]={tasks:[],note:'',applied:[]};
+    if(!day.applied)day.applied=[];
+    if(!day.tasks.some(function(t){return t.habitId===h.id;})){
+      day.tasks.push({id:uid(),title:h.title,habitId:h.id,planned:h.planned||'',actual:'',done:false});
+    }
+    day.applied.push(h.id);changed=true;
+  });
+  if(changed)save();
+}
+function ensureDay(k){
+  return data.daily[k]||(data.daily[k]={tasks:[],note:'',applied:[]});
+}
+
+/* ============ وضعیت صفحه ============ */
+var tj=jal(todayKey());
+var S={tab:'daily',day:todayKey(),weekStart:weekStartOf(todayKey()),jy:tj.y,jm:tj.m,mchart:'daily',habitSel:null,loaded:todayKey()};
+
+/* ============ نمودار خطی (SVG) ============ */
+function lineChart(pts,h){
+  h=h||112;
+  var W=320,pl=10,pr=28,pt=10,pb=22,n=pts.length;
+  if(!pts.some(function(p){return p.value!=null;}))return '<div class="empty small">هنوز داده‌ای برای نمودار ثبت نشده</div>';
+  var iw=W-pl-pr,ih=h-pt-pb;
+  function X(i){return n===1?pl+iw/2:W-pr-i*(iw/(n-1));}   /* قدیمی‌ترین سمت راست */
+  function Y(v){return pt+(1-v/100)*ih;}
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+h+'" role="img" aria-label="نمودار عملکرد">';
+  [0,50,100].forEach(function(g){
+    s+='<line class="grid" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+Y(g)+'" y2="'+Y(g)+'"/>'+
+       '<text x="'+(W-pr+6)+'" y="'+(Y(g)+3.5)+'">'+fa(g)+'</text>';
+  });
+  var d='',pen=false;
+  pts.forEach(function(p,i){
+    if(p.value==null){pen=false;return;}
+    d+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(p.value).toFixed(1)+' ';pen=true;
+  });
+  s+='<path class="line" d="'+d+'"/>';
+  pts.forEach(function(p,i){
+    if(p.value!=null)s+='<circle class="dot" cx="'+X(i).toFixed(1)+'" cy="'+Y(p.value).toFixed(1)+'" r="3"/>';
+    if(p.label)s+='<text text-anchor="middle" x="'+X(i).toFixed(1)+'" y="'+(h-6)+'">'+p.label+'</text>';
+  });
+  return s+'</svg>';
+}
+
+var ICON_PREV='<svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>';
+var ICON_NEXT='<svg viewBox="0 0 24 24"><polyline points="15 6 9 12 15 18"/></svg>';
+
+function head(title,sub,prevAct,nextAct,backAct,backText){
+  return '<header class="head">'+
+    '<button class="iconbtn" data-act="'+prevAct+'" aria-label="قبلی">'+ICON_PREV+'</button>'+
+    '<div class="head-main"><div class="head-title">'+title+'</div><div class="head-sub">'+sub+'</div>'+
+    (backAct?'<button class="linkbtn" data-act="'+backAct+'">'+backText+'</button>':'')+
+    '</div>'+
+    '<button class="iconbtn" data-act="'+nextAct+'" aria-label="بعدی">'+ICON_NEXT+'</button></header>';
+}
+function statBtn(on,act,id){
+  return '<button class="stat'+(on?' on':'')+'" data-act="'+act+'" data-id="'+id+'" aria-label="'+(on?'انجام شد':'انجام نشد')+'">'+(on?'✓':'×')+'</button>';
+}
+
+/* ============ بخش روزانه ============ */
+function viewDaily(){
+  var k=S.day,tk=todayKey();
+  applyHabits(k);
+  var day=data.daily[k]||{tasks:[],note:''};
+  var st=dayStat(k),pts=[];
+  for(var i=6;i>=0;i--){var kk=addDays(k,-i);pts.push({label:fa(jal(kk).d),value:dayPct(kk)});}
+
+  var h=head(WD[weekdayIdx(k)]+'، '+jLabel(k),gLong(k),'day-prev','day-next',k!==tk?'go-today':'','برگشت به امروز');
+
+  h+='<section class="card chart-card tap" data-act="open-details" aria-label="جزئیات عملکرد روز">'+
+     '<div class="pct-box"><div class="pct-num">'+pctText(st.pct)+'</div>'+
+     '<div class="pct-sub">'+(st.total?fa(st.done)+' از '+fa(st.total)+' کار':'کاری ثبت نشده')+'</div></div>'+
+     '<div class="chart-box"><div class="chart-cap">۷ روز تا این روز</div>'+lineChart(pts,100)+'</div></section>';
+
+  h+='<section class="card table"><div class="trow thead"><div>کارها</div><div>تایم موردنظر</div><div>تایم انجام‌شده</div><div>وضعیت</div></div>';
+  if(!day.tasks.length)h+='<div class="empty">هنوز کاری برای این روز ثبت نشده.<br>با دکمه‌ی زیر شروع کن.</div>';
+  day.tasks.forEach(function(t){
+    h+='<div class="trow" data-act="edit-task" data-id="'+t.id+'">'+
+       '<div class="tt">'+esc(t.title)+(t.habitId?'<span class="hab" title="عادت">↻</span>':'')+'</div>'+
+       '<div class="tm">'+(t.planned?fa(t.planned):'—')+'</div>'+
+       '<div class="tm">'+(t.actual?fa(t.actual):'—')+'</div>'+
+       statBtn(t.done,'toggle-task',t.id)+'</div>';
+  });
+  h+='<button class="addbtn" data-act="add-task">+ افزودن کار</button><div style="height:8px"></div></section>';
+
+  h+='<fieldset class="card notes"><legend>Notes</legend>'+
+     '<textarea id="note" rows="2" data-k="'+k+'" placeholder="یادداشت امروز…" aria-label="یادداشت">'+esc(day.note||'')+'</textarea></fieldset>';
+
+  h+='<div class="sec-title">گزارش روز</div><section class="card"><div class="rgrid">'+
+     '<div class="rcell"><b>'+fa(st.total)+'</b><span>کل کارها</span></div>'+
+     '<div class="rcell"><b>'+fa(st.done)+'</b><span>انجام‌شده</span></div>'+
+     '<div class="rcell"><b>'+fa(st.undone)+'</b><span>انجام‌نشده</span></div>'+
+     '<div class="rcell pc"><b>'+pctText(st.pct)+'</b><span>عملکرد</span></div></div></section>';
+  return h;
+}
+
+/* پنل افزودن/ویرایش کار روزانه */
+function taskSheet(id){
+  var k=S.day,day=data.daily[k];
+  var t=id?day.tasks.filter(function(x){return x.id===id;})[0]:{title:'',planned:'',actual:'',done:false,habitId:null};
+  if(!t)return;
+  var habit=t.habitId?data.habits.filter(function(x){return x.id===t.habitId;})[0]:null;
+  var html='<h3>'+(id?'ویرایش کار':'کار جدید')+'</h3><div class="sub">'+gShort(k)+'</div>'+
+    '<label class="f" for="f-title">عنوان کار</label><input class="fin" id="f-title" type="text" maxlength="120" value="'+esc(t.title)+'">'+
+    '<div class="two"><div><label class="f" for="f-planned">تایم موردنظر</label><div class="tin"><input class="fin" id="f-planned" type="time" value="'+esc(t.planned||'')+'"><button class="clr" type="button" data-clear="f-planned" aria-label="پاک کردن">×</button></div></div>'+
+    '<div><label class="f" for="f-actual">تایم انجام‌شده</label><div class="tin"><input class="fin" id="f-actual" type="time" value="'+esc(t.actual||'')+'"><button class="clr" type="button" data-clear="f-actual" aria-label="پاک کردن">×</button></div></div></div>'+
+    '<label class="f">وضعیت</label>'+seg('f-status',[{v:'1',l:'انجام شد ✓'},{v:'0',l:'انجام نشد ×'}],t.done?'1':'0')+
+    '<label class="check"><input type="checkbox" id="f-habit"'+(habit&&habit.active?' checked':'')+'><span>عادت روزانه — هر روز خودکار به لیست اضافه شود و در تقویم ماهانه ثبت شود</span></label>'+
+    '<div class="err" id="f-err"></div>'+
+    '<div class="actions"><button class="btn primary" data-act="sheet-save">ذخیره</button>'+
+    (id?'<button class="btn danger" data-act="sheet-delete">حذف</button>':'<button class="btn" data-act="sheet-close">انصراف</button>')+'</div>';
+
+  openSheet(html,{
+    save:function(){
+      var title=$('f-title').value.trim();
+      if(!title){$('f-err').textContent='عنوان کار را بنویس.';$('f-title').focus();return;}
+      var d=ensureDay(k),task=id?d.tasks.filter(function(x){return x.id===id;})[0]:null;
+      if(!task){task={id:uid(),habitId:null};d.tasks.push(task);}
+      task.title=title;task.planned=$('f-planned').value;task.actual=$('f-actual').value;task.done=segVal('f-status')==='1';
+      var wantHabit=$('f-habit').checked;
+      var h=task.habitId?data.habits.filter(function(x){return x.id===task.habitId;})[0]:null;
+      if(wantHabit){
+        if(!h){
+          h={id:uid(),title:title,planned:task.planned,active:true,since:k};
+          data.habits.push(h);task.habitId=h.id;
+          if(!d.applied)d.applied=[];d.applied.push(h.id);
+        }else{h.title=title;h.planned=task.planned;h.active=true;}
+      }else if(h){h.active=false;}
+      save();closeSheet();render();
+    },
+    del:function(){
+      var d=data.daily[k];
+      d.tasks=d.tasks.filter(function(x){return x.id!==id;});
+      save();closeSheet();render();
+    }
+  });
+}
+
+/* جزئیات عملکرد روز + روزهای گذشته */
+function detailsSheet(){
+  var k=S.day,st=dayStat(k),tk=todayKey();
+  var keys=Object.keys(data.daily).filter(function(x){
+    var d=data.daily[x];return x<=tk&&((d.tasks&&d.tasks.length)||(d.note||'').trim());
+  }).sort().reverse();
+  var html='<h3>جزئیات عملکرد روز</h3><div class="sub" style="font-family:var(--font);direction:rtl">'+WD[weekdayIdx(k)]+'، '+jLabel(k)+'</div>'+
+    '<div class="rgrid" style="margin-top:12px">'+
+    '<div class="rcell"><b>'+fa(st.total)+'</b><span>کل کارها</span></div>'+
+    '<div class="rcell"><b>'+fa(st.done)+'</b><span>انجام‌شده</span></div>'+
+    '<div class="rcell"><b>'+fa(st.undone)+'</b><span>انجام‌نشده</span></div>'+
+    '<div class="rcell pc"><b>'+pctText(st.pct)+'</b><span>عملکرد</span></div></div>'+
+    '<div class="sec-title">روزهای ثبت‌شده (برای دیدن، روی روز بزن)</div>';
+  if(!keys.length)html+='<div class="empty">هنوز روزی ثبت نشده.</div>';
+  keys.forEach(function(x){
+    var s=dayStat(x);
+    html+='<div class="hrow" data-act="goto-day" data-k="'+x+'"><div><div class="hn">'+WD[weekdayIdx(x)]+'، '+jLabel(x)+'</div><div class="hg">'+gShort(x)+'</div></div>'+
+      '<div class="hbar"><i style="width:'+(s.pct||0)+'%"></i></div><div class="hv">'+pctText(s.pct)+'</div><div class="hc">'+fa(s.done)+' از '+fa(s.total)+'</div></div>';
+  });
+  html+='<div class="actions" style="margin-top:16px"><button class="btn" data-act="sheet-close">بستن</button></div>';
+  openSheet(html,{});
+}
+
+/* ============ بخش هفتگی ============ */
+var TYPES=['کلاس','مطالعه','فعالیت','دیگر'];
+function viewWeekly(){
+  var ws=S.weekStart,keys=[],pts=[],i;
+  var SHORT=['ش','ی','د','س','چ','پ','ج'];
+  for(i=0;i<7;i++){keys.push(addDays(ws,i));pts.push({label:SHORT[i],value:dayPct(keys[i])});}
+  var j1=jal(keys[0]),j2=jal(keys[6]);
+  var title=fa(j1.d)+' '+JM[j1.m-1]+' تا '+fa(j2.d)+' '+JM[j2.m-1];
+  var sub=gRange(keys[0],keys[6]);
+  var isNow=ws===weekStartOf(todayKey());
+  var st=rangeStat(keys);
+  var plans=(data.weekly[ws]||[]).slice().sort(function(a,b){return a.day-b.day;});
+  var pdone=plans.filter(function(p){return p.done;}).length;
+
+  var h=head(title,sub,'week-prev','week-next',isNow?'':'week-now','برگشت به این هفته');
+  h+='<section class="card chart-card"><div class="pct-box"><div class="pct-num">'+pctText(st.pct)+'</div>'+
+     '<div class="pct-sub">'+(st.total?fa(st.done)+' از '+fa(st.total)+' کار روزانه':'کاری ثبت نشده')+'</div></div>'+
+     '<div class="chart-box"><div class="chart-cap">عملکرد روزهای هفته</div>'+lineChart(pts,100)+'</div></section>';
+
+  h+='<section class="card table"><div class="trow w3 thead"><div>کارها و برنامه‌ها</div><div>روز</div><div>وضعیت</div></div>';
+  if(!plans.length)h+='<div class="empty">هنوز برنامه‌ای برای این هفته ثبت نشده.<br>کلاس‌ها، زمان مطالعه و فعالیت‌ها را اینجا بنویس.</div>';
+  plans.forEach(function(p){
+    h+='<div class="trow w3" data-act="edit-plan" data-id="'+p.id+'">'+
+       '<div class="tt">'+esc(p.title)+'<span class="tag">'+esc(p.type)+'</span>'+(p.note?'<small>'+esc(p.note)+'</small>':'')+'</div>'+
+       '<div class="tm day">'+WD[p.day]+'</div>'+statBtn(p.done,'toggle-plan',p.id)+'</div>';
+  });
+  h+='<button class="addbtn" data-act="add-plan">+ افزودن برنامه</button><div style="height:8px"></div></section>';
+
+  /* گزارش هفتگی */
+  var vals=keys.map(function(kk){return dayPct(kk);});
+  var max=Math.max.apply(null,vals.map(function(v){return v==null?-1:v;}));
+  h+='<div class="sec-title">گزارش هفته</div><section class="card"><div class="rgrid">'+
+     '<div class="rcell pc"><b>'+pctText(st.pct)+'</b><span>عملکرد هفته</span></div>'+
+     '<div class="rcell"><b>'+fa(plans.length)+'</b><span>برنامه‌ها</span></div>'+
+     '<div class="rcell"><b>'+fa(pdone)+'</b><span>انجام‌شده</span></div>'+
+     '<div class="rcell"><b>'+fa(plans.length-pdone)+'</b><span>انجام‌نشده</span></div></div>'+
+     '<div class="note-line">مقایسه‌ی روزهای هفته (از کارهای روزانه)</div>';
+  keys.forEach(function(kk,ix){
+    var v=vals[ix];
+    h+='<div class="cmp'+(v!=null&&v===max&&max>0?' best':'')+'"><span>'+WD[ix]+'</span><div class="cmp-bar"><i style="width:'+(v||0)+'%"></i></div><span class="cmp-v">'+pctText(v)+'</span></div>';
+  });
+  h+='</section>';
+  return h;
+}
+
+function planSheet(id){
+  var ws=S.weekStart,list=data.weekly[ws]||[];
+  var p=id?list.filter(function(x){return x.id===id;})[0]:{title:'',type:'کلاس',day:Math.min(weekdayIdx(todayKey()),6),note:'',done:false};
+  if(!p)return;
+  if(!id&&ws!==weekStartOf(todayKey()))p.day=0;
+  var html='<h3>'+(id?'ویرایش برنامه':'برنامه‌ی جدید')+'</h3>'+
+    '<label class="f" for="f-title">عنوان</label><input class="fin" id="f-title" type="text" maxlength="120" value="'+esc(p.title)+'">'+
+    '<label class="f">نوع</label>'+seg('f-type',TYPES.map(function(t){return {v:t,l:t};}),p.type)+
+    '<label class="f">روز هفته</label>'+seg('f-day',WD.map(function(w,ix){return {v:String(ix),l:w};}),String(p.day))+
+    '<label class="f" for="f-note">توضیح یا زمان (اختیاری)</label><input class="fin" id="f-note" type="text" maxlength="120" placeholder="مثلاً: ۲ ساعت" value="'+esc(p.note||'')+'">'+
+    '<label class="f">وضعیت</label>'+seg('f-status',[{v:'1',l:'انجام شد ✓'},{v:'0',l:'انجام نشد ×'}],p.done?'1':'0')+
+    '<div class="err" id="f-err"></div>'+
+    '<div class="actions"><button class="btn primary" data-act="sheet-save">ذخیره</button>'+
+    (id?'<button class="btn danger" data-act="sheet-delete">حذف</button>':'<button class="btn" data-act="sheet-close">انصراف</button>')+'</div>';
+  openSheet(html,{
+    save:function(){
+      var title=$('f-title').value.trim();
+      if(!title){$('f-err').textContent='عنوان برنامه را بنویس.';$('f-title').focus();return;}
+      var arr=data.weekly[ws]||(data.weekly[ws]=[]);
+      var item=id?arr.filter(function(x){return x.id===id;})[0]:null;
+      if(!item){item={id:uid()};arr.push(item);}
+      item.title=title;item.type=segVal('f-type');item.day=parseInt(segVal('f-day'),10);
+      item.note=$('f-note').value.trim();item.done=segVal('f-status')==='1';
+      save();closeSheet();render();
+    },
+    del:function(){data.weekly[ws]=(data.weekly[ws]||[]).filter(function(x){return x.id!==id;});save();closeSheet();render();}
+  });
+}
+
+/* ============ بخش ماهانه ============ */
+function monthKey(){return S.jy+'-'+pad(S.jm);}
+function viewMonthly(){
+  var y=S.jy,m=S.jm,start=jMonthStart(y,m),len=jMonthLen(y,m),keys=[],i;
+  for(i=0;i<len;i++)keys.push(addDays(start,i));
+  var ms=rangeStat(keys),pts=[];
+  if(S.mchart==='daily'){
+    pts=keys.map(function(kk,ix){return {label:(ix===0||(ix+1)%5===0)?fa(ix+1):'',value:dayPct(kk)};});
+  }else{
+    var segs=[],cur=[];
+    keys.forEach(function(kk,ix){if(ix>0&&weekdayIdx(kk)===0){segs.push(cur);cur=[];}cur.push(kk);});
+    segs.push(cur);
+    pts=segs.map(function(sg,ix){return {label:fa(ix+1),value:rangeStat(sg).pct};});
+  }
+  var now=jal(todayKey()),isNow=now.y===y&&now.m===m;
+  var h=head(JM[m-1]+' '+fa(y),gRange(start,keys[len-1]),'m-prev','m-next',isNow?'':'m-now','برگشت به این ماه');
+
+  h+='<section class="card"><div class="mtop"><div class="seg2" role="group" aria-label="نوع نمودار">'+
+     '<button class="'+(S.mchart==='weekly'?'on':'')+'" data-act="mchart" data-v="weekly">هفتگی</button>'+
+     '<button class="'+(S.mchart==='daily'?'on':'')+'" data-act="mchart" data-v="daily">روزانه</button></div>'+
+     '<div class="mpct">عملکرد ماه: <b>'+pctText(ms.pct)+'</b></div></div>'+lineChart(pts,128)+
+     '<div class="chart-cap" style="text-align:center;margin-top:2px">'+(S.mchart==='weekly'?'شماره‌ی هفته‌های ماه (هر هفته از شنبه شروع می‌شود)':'روزهای ماه')+'</div></section>';
+
+  /* اهداف */
+  var goals=(data.monthly[monthKey()]&&data.monthly[monthKey()].goals)||[];
+  var gdone=goals.filter(function(g){return g.done;}).length;
+  h+='<div class="sec-title">اهداف ماه'+(goals.length?' — '+fa(gdone)+' از '+fa(goals.length)+' انجام شده':'')+'</div>'+
+     '<section class="card table"><div class="trow w2 thead"><div>اهداف</div><div>وضعیت</div></div>';
+  if(!goals.length)h+='<div class="empty">هنوز هدفی برای این ماه ثبت نشده.</div>';
+  goals.forEach(function(g){
+    h+='<div class="trow w2" data-act="edit-goal" data-id="'+g.id+'"><div class="tt">'+esc(g.title)+'</div>'+statBtn(g.done,'toggle-goal',g.id)+'</div>';
+  });
+  h+='<button class="addbtn" data-act="add-goal">+ افزودن هدف</button><div style="height:8px"></div></section>';
+
+  /* تقویم عادت‌ها */
+  h+='<div class="sec-title">تقویم عادت‌ها</div><section class="card">';
+  if(!data.habits.length){
+    h+='<div class="empty">هنوز عادتی ثبت نشده.<br>در بخش روزانه هنگام افزودن کار، گزینه‌ی «عادت روزانه» را روشن کن؛ بعد خودکار اینجا ثبت می‌شود.</div>';
+  }else{
+    if(!S.habitSel||!data.habits.some(function(x){return x.id===S.habitSel;}))S.habitSel=data.habits[0].id;
+    var hb=data.habits.filter(function(x){return x.id===S.habitSel;})[0];
+    h+='<div class="chips">'+data.habits.map(function(x){
+      return '<button class="chip'+(x.id===S.habitSel?' on':'')+(x.active?'':' off')+'" data-act="habit-sel" data-id="'+x.id+'">'+esc(x.title)+'</button>';
+    }).join('')+'</div><div class="cal">';
+    WD.forEach(function(w){h+='<div class="wd">'+w.charAt(0)+'</div>';});
+    for(i=0;i<weekdayIdx(start);i++)h+='<div class="cell blank"></div>';
+    var tk=todayKey(),okN=0,noN=0;
+    keys.forEach(function(kk,ix){
+      var mark='',cls='';
+      if(kk<=tk){
+        var t=dayTasks(kk).filter(function(x){return x.habitId===hb.id;})[0];
+        if(t){if(t.done){mark='✓';cls='ok';okN++;}else{mark='×';cls='no';noN++;}}
+      }
+      h+='<div class="cell'+(kk===tk?' today':'')+'"><span class="jn">'+fa(ix+1)+'</span><span class="mk '+cls+'">'+mark+'</span><span class="gn">'+parseKey(kk).getDate()+'</span></div>';
+    });
+    h+='</div><div class="note-line">«'+esc(hb.title)+'» در این ماه: '+fa(okN)+' روز انجام شده، '+fa(noN)+' روز انجام نشده</div>';
+  }
+  return h+'</section>';
+}
+
+function goalSheet(id){
+  var mk=monthKey(),list=(data.monthly[mk]&&data.monthly[mk].goals)||[];
+  var g=id?list.filter(function(x){return x.id===id;})[0]:{title:'',done:false};
+  if(!g)return;
+  var html='<h3>'+(id?'ویرایش هدف':'هدف جدید')+'</h3>'+
+    '<label class="f" for="f-title">هدف</label><input class="fin" id="f-title" type="text" maxlength="140" value="'+esc(g.title)+'">'+
+    '<label class="f">وضعیت</label>'+seg('f-status',[{v:'1',l:'انجام شد ✓'},{v:'0',l:'انجام نشد ×'}],g.done?'1':'0')+
+    '<div class="err" id="f-err"></div>'+
+    '<div class="actions"><button class="btn primary" data-act="sheet-save">ذخیره</button>'+
+    (id?'<button class="btn danger" data-act="sheet-delete">حذف</button>':'<button class="btn" data-act="sheet-close">انصراف</button>')+'</div>';
+  openSheet(html,{
+    save:function(){
+      var title=$('f-title').value.trim();
+      if(!title){$('f-err').textContent='هدف را بنویس.';$('f-title').focus();return;}
+      var rec=data.monthly[mk]||(data.monthly[mk]={goals:[]});
+      var item=id?rec.goals.filter(function(x){return x.id===id;})[0]:null;
+      if(!item){item={id:uid()};rec.goals.push(item);}
+      item.title=title;item.done=segVal('f-status')==='1';
+      save();closeSheet();render();
+    },
+    del:function(){var rec=data.monthly[mk];rec.goals=rec.goals.filter(function(x){return x.id!==id;});save();closeSheet();render();}
+  });
+}
+
+/* ============ پنل کشویی و فرم‌ها ============ */
+var sheetRoot=$('sheet-root'),cur=null;
+function seg(id,opts,val){
+  return '<div class="seg" id="'+id+'">'+opts.map(function(o){
+    return '<button type="button" data-v="'+esc(o.v)+'" class="'+(o.v===val?'on':'')+'">'+esc(o.l)+'</button>';
+  }).join('')+'</div>';
+}
+function segVal(id){var b=document.querySelector('#'+id+' .on');return b?b.getAttribute('data-v'):null;}
+function setSeg(id,v){Array.prototype.forEach.call(document.querySelectorAll('#'+id+' button'),function(b){b.classList.toggle('on',b.getAttribute('data-v')===v);});}
+function openSheet(html,handlers){
+  cur=handlers||{};
+  sheetRoot.innerHTML='<div class="overlay" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true">'+html+'</div></div>';
+  document.body.style.overflow='hidden';
+  var f=sheetRoot.querySelector('input[type=text]');
+  if(f&&!f.value)setTimeout(function(){f.focus();},80);
+}
+function closeSheet(){sheetRoot.innerHTML='';cur=null;document.body.style.overflow='';}
+
+/* ============ یادداشت (ذخیره‌ی خودکار) ============ */
+var noteTimer=null,noteDirty=false;
+function flushNote(){
+  clearTimeout(noteTimer);
+  if(!noteDirty)return;
+  noteDirty=false;
+  var ta=$('note');if(!ta)return;
+  var k=ta.getAttribute('data-k');
+  if(!ta.value&&!data.daily[k])return;
+  ensureDay(k).note=ta.value;
+  save();
+}
+function autosize(ta){ta.style.height='auto';ta.style.height=Math.max(60,ta.scrollHeight)+'px';}
+
+/* ============ نمایش ============ */
+var view=$('view');
+function render(){
+  flushNote();
+  applyHabits(todayKey());
+  view.innerHTML=S.tab==='daily'?viewDaily():S.tab==='weekly'?viewWeekly():viewMonthly();
+  Array.prototype.forEach.call(document.querySelectorAll('.nbtn'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===S.tab);});
+  var ta=$('note');if(ta)autosize(ta);
+  showWarn();
+}
+
+/* ============ رویدادها ============ */
+function shiftMonth(n){
+  var m=S.jm+n,y=S.jy;
+  while(m>12){m-=12;y++;}
+  while(m<1){m+=12;y--;}
+  S.jm=m;S.jy=y;
+}
+var ACTIONS={
+  'tab':function(el){S.tab=el.getAttribute('data-tab');render();window.scrollTo(0,0);},
+  'day-prev':function(){S.day=addDays(S.day,-1);render();},
+  'day-next':function(){S.day=addDays(S.day,1);render();},
+  'go-today':function(){S.day=todayKey();render();},
+  'goto-day':function(el){S.day=el.getAttribute('data-k');S.tab='daily';closeSheet();render();window.scrollTo(0,0);},
+  'open-details':function(){detailsSheet();},
+  'add-task':function(){taskSheet(null);},
+  'edit-task':function(el){taskSheet(el.getAttribute('data-id'));},
+  'toggle-task':function(el){
+    var t=dayTasks(S.day).filter(function(x){return x.id===el.getAttribute('data-id');})[0];
+    if(!t)return;
+    t.done=!t.done;
+    if(t.done){if(!t.actual&&S.day===todayKey())t.actual=nowHM();}else{t.actual='';}
+    save();render();
+  },
+  'week-prev':function(){S.weekStart=addDays(S.weekStart,-7);render();},
+  'week-next':function(){S.weekStart=addDays(S.weekStart,7);render();},
+  'week-now':function(){S.weekStart=weekStartOf(todayKey());render();},
+  'add-plan':function(){planSheet(null);},
+  'edit-plan':function(el){planSheet(el.getAttribute('data-id'));},
+  'toggle-plan':function(el){
+    var p=(data.weekly[S.weekStart]||[]).filter(function(x){return x.id===el.getAttribute('data-id');})[0];
+    if(p){p.done=!p.done;save();render();}
+  },
+  'm-prev':function(){shiftMonth(-1);render();},
+  'm-next':function(){shiftMonth(1);render();},
+  'm-now':function(){var j=jal(todayKey());S.jy=j.y;S.jm=j.m;render();},
+  'mchart':function(el){S.mchart=el.getAttribute('data-v');render();},
+  'add-goal':function(){goalSheet(null);},
+  'edit-goal':function(el){goalSheet(el.getAttribute('data-id'));},
+  'toggle-goal':function(el){
+    var rec=data.monthly[monthKey()];
+    var g=rec&&rec.goals.filter(function(x){return x.id===el.getAttribute('data-id');})[0];
+    if(g){g.done=!g.done;save();render();}
+  },
+  'habit-sel':function(el){S.habitSel=el.getAttribute('data-id');render();},
+  'sheet-save':function(){if(cur&&cur.save)cur.save();},
+  'sheet-close':function(){closeSheet();},
+  'sheet-delete':function(el){
+    if(!el.classList.contains('armed')){el.classList.add('armed');el.textContent='مطمئنی؟ دوباره بزن';return;}
+    if(cur&&cur.del)cur.del();
+  }
+};
+
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var clr=t.closest&&t.closest('[data-clear]');
+  if(clr){$(clr.getAttribute('data-clear')).value='';return;}
+  var sb=t.closest&&t.closest('#sheet-root .seg button');
+  if(sb){Array.prototype.forEach.call(sb.parentNode.children,function(b){b.classList.remove('on');});sb.classList.add('on');return;}
+  var el=t.closest&&t.closest('[data-act]');
+  if(!el)return;
+  var act=el.getAttribute('data-act');
+  if(act==='sheet-bg'){if(t===el)closeSheet();return;}
+  if(ACTIONS[act])ACTIONS[act](el);
+});
+/* اگر تایم انجام‌شده را وارد کرد، وضعیت خودکار «انجام شد» شود */
+document.addEventListener('change',function(e){
+  if(e.target.id==='f-actual'&&e.target.value&&$('f-status'))setSeg('f-status','1');
+});
+document.addEventListener('input',function(e){
+  if(e.target.id==='note'){autosize(e.target);noteDirty=true;clearTimeout(noteTimer);noteTimer=setTimeout(flushNote,400);}
+});
+document.addEventListener('focusout',function(e){if(e.target.id==='note')flushNote();});
+window.addEventListener('pagehide',flushNote);
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){flushNote();return;}
+  var tk=todayKey();
+  if(tk!==S.loaded){S.loaded=tk;S.day=tk;S.weekStart=weekStartOf(tk);var j=jal(tk);S.jy=j.y;S.jm=j.m;}
+  render();
+});
+
+render();
+
+/* صفحه‌ی آغازین: حدود دو ثانیه نمایش داده می‌شود (با لمس زودتر بسته می‌شود) */
+(function(){
+  var sp=$('splash'),gone=false;
+  function close(){
+    if(gone)return;gone=true;
+    sp.classList.add('hide');
+    setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},600);
+  }
+  sp.addEventListener('click',close);
+  setTimeout(close,2000);
+})();
+
+/* آفلاین‌شدن (فقط وقتی از روی اینترنت/سایت باز شود) */
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+}
+})();
+</script>
+</body>
+</html>
